@@ -183,7 +183,10 @@ CSRF_COOKIE_SECURE = False
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
+
 CORS_ALLOWED_ORIGINS = [
     "https://your-frontend-domain.com",
     "https://another-allowed-domain.com",
 ]
+
+CSRF_TRUSTED_ORIGINS = ['https://my-django-backend-production.up.railway.app/']
