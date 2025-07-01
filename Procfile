@@ -1,1 +1,1 @@
-web: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn prj.wsgi:application 
+web: gunicorn prj.wsgi --log-file - 
