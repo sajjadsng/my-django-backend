@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: django-auth-api
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn prj.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.1
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: True
+    healthCheckPath: /swagger/
+
+databases:
+  - name: django-auth-db
+    databaseName: django_auth_db
+    user: django_auth_user
+    plan: free 

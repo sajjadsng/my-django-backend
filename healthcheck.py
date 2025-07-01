@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 """
-Health check script for Railway deployment
+Health check script for Render deployment
 """
 import os
 import sys
 import django
-from django.core.management import execute_from_command_line
 
 def main():
     """Run health check."""

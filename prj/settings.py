@@ -63,7 +63,7 @@ WSGI_APPLICATION = 'prj.wsgi.application'
 DATABASE_URL = config('DATABASE_URL', default='')
 
 if DATABASE_URL:
-    # Parse DATABASE_URL for Railway
+    # Parse DATABASE_URL for Render/Railway
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL)
     }
@@ -160,10 +160,11 @@ if not DEBUG:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
         'https://your-frontend-domain.com',
+        'https://your-app.onrender.com',
         'https://your-app.railway.app',
     ] + CORS_ALLOWED_ORIGINS
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Port configuration for Railway
+# Port configuration for Render/Railway
 PORT = config('PORT', default=8000, cast=int) 

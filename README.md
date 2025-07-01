@@ -115,7 +115,29 @@ curl -X GET http://localhost:8000/api/profile/ \
 
 ## Deployment
 
-### Railway
+### Render (توصیه شده)
+
+1. **اتصال به GitHub**
+   - پروژه را در GitHub push کنید
+   - در Render، New Web Service ایجاد کنید
+   - از GitHub connect کنید
+
+2. **تنظیمات Render**
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `python manage.py migrate && python manage.py collectstatic --noinput && gunicorn prj.wsgi:application`
+   - **Environment**: Python 3.11
+
+3. **متغیرهای محیطی**
+   - `SECRET_KEY`: کلید امن Django (Render خودش تولید می‌کند)
+   - `DEBUG`: False
+   - `ALLOWED_HOSTS`: .onrender.com
+   - `DATABASE_URL`: Render PostgreSQL URL (اتوماتیک)
+
+4. **Database**
+   - PostgreSQL database اضافه کنید
+   - Render خودکار DATABASE_URL را تنظیم می‌کند
+
+### Railway (جایگزین)
 
 1. **اتصال به GitHub**
    - پروژه را در GitHub push کنید
@@ -136,7 +158,7 @@ curl -X GET http://localhost:8000/api/profile/ \
 ```env
 SECRET_KEY=your-secret-key
 DEBUG=False
-ALLOWED_HOSTS=your-app.railway.app
+ALLOWED_HOSTS=your-app.onrender.com
 DATABASE_URL=postgresql://...
 ```
 
@@ -154,6 +176,7 @@ Back-end/
 │   ├── urls.py            # URL patterns اصلی
 │   └── wsgi.py            # WSGI configuration
 ├── requirements.txt       # وابستگی‌ها
+├── render.yaml           # Render configuration
 ├── Procfile              # Railway configuration
 ├── runtime.txt           # Python version
 └── README.md             # این فایل
