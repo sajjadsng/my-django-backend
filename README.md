@@ -115,7 +115,22 @@ curl -X GET http://localhost:8000/api/profile/ \
 
 ## Deployment
 
-### Fly.io (توصیه شده)
+### Replit (توصیه شده - کاملاً رایگان)
+
+1. **وارد [Replit](https://replit.com/) شو**
+2. **Sign up** یا **Sign in** کن
+3. **Create Repl** → **Import from GitHub**
+4. Repository URL را وارد کن: `https://github.com/sajjadsng/my-django-backend`
+5. **Import from GitHub** کلیک کن
+6. منتظر بمان تا import تمام شود
+7. **Run** کلیک کن
+
+**نکات مهم:**
+- Replit خودکار dependencies را نصب می‌کند
+- SQLite database استفاده می‌کند (رایگان)
+- URL شما: `https://your-repl-name.your-username.replit.dev`
+
+### Fly.io (جایگزین)
 
 1. **نصب Fly CLI**
 ```bash
@@ -219,12 +234,14 @@ Back-end/
 │   ├── urls.py            # URL patterns اصلی
 │   └── wsgi.py            # WSGI configuration
 ├── requirements.txt       # وابستگی‌ها
-├── fly.toml              # Fly.io configuration
-├── Dockerfile            # Docker configuration
-├── render.yaml           # Render configuration
-├── Procfile              # Railway configuration
-├── runtime.txt           # Python version
-└── README.md             # این فایل
+├── .replit               # Replit configuration
+├── pyproject.toml        # Poetry configuration
+├── replit.nix           # Replit dependencies
+├── fly.toml             # Fly.io configuration
+├── Dockerfile           # Docker configuration
+├── Procfile             # Railway configuration
+├── runtime.txt          # Python version
+└── README.md            # این فایل
 ```
 
 ## مشارکت
