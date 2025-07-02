@@ -115,7 +115,50 @@ curl -X GET http://localhost:8000/api/profile/ \
 
 ## Deployment
 
-### Render (توصیه شده)
+### Fly.io (توصیه شده)
+
+1. **نصب Fly CLI**
+```bash
+# macOS
+brew install flyctl
+
+# Windows
+powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
+
+# Linux
+curl -L https://fly.io/install.sh | sh
+```
+
+2. **Login به Fly.io**
+```bash
+fly auth login
+```
+
+3. **ایجاد app**
+```bash
+fly launch
+```
+
+4. **تنظیم متغیرهای محیطی**
+```bash
+fly secrets set SECRET_KEY="your-secret-key-here"
+fly secrets set DEBUG="False"
+fly secrets set ALLOWED_HOSTS=".fly.dev"
+fly secrets set CORS_ALLOW_ALL_ORIGINS="True"
+```
+
+5. **ایجاد database**
+```bash
+fly postgres create django-auth-db
+fly postgres attach django-auth-db
+```
+
+6. **Deploy**
+```bash
+fly deploy
+```
+
+### Render (جایگزین)
 
 1. **اتصال به GitHub**
    - پروژه را در GitHub push کنید
@@ -158,7 +201,7 @@ curl -X GET http://localhost:8000/api/profile/ \
 ```env
 SECRET_KEY=your-secret-key
 DEBUG=False
-ALLOWED_HOSTS=your-app.onrender.com
+ALLOWED_HOSTS=your-app.fly.dev
 DATABASE_URL=postgresql://...
 ```
 
@@ -176,6 +219,8 @@ Back-end/
 │   ├── urls.py            # URL patterns اصلی
 │   └── wsgi.py            # WSGI configuration
 ├── requirements.txt       # وابستگی‌ها
+├── fly.toml              # Fly.io configuration
+├── Dockerfile            # Docker configuration
 ├── render.yaml           # Render configuration
 ├── Procfile              # Railway configuration
 ├── runtime.txt           # Python version
