@@ -28,6 +28,54 @@ from django.core.files.storage import default_storage
 
 User = get_user_model()
 
+# Error Codes
+AUTH_ERROR_CODES = {
+    'AS1001': 'InvalidRegistrationData',
+    'AS1002': 'EmailAlreadyExists',
+    'AS1003': 'InvalidLoginCredentials',
+    'AS1004': 'UserNotFound',
+    'AS1005': 'AuthenticationRequired',
+    'AS1006': 'InvalidLogoutToken',
+}
+
+PROJECT_ERROR_CODES = {
+    'AS2001': 'ProjectNotFound',
+    'AS2002': 'InvalidProjectData',
+    'AS2003': 'ProjectCreationFailed',
+    'AS2004': 'ProjectUpdateFailed',
+    'AS2005': 'ProjectDeleteFailed',
+}
+
+EMPLOYEE_ERROR_CODES = {
+    'AS3001': 'EmployeeNotFound',
+    'AS3002': 'InvalidEmployeeData',
+    'AS3003': 'EmployeeCreationFailed',
+    'AS3004': 'EmployeeUpdateFailed',
+    'AS3005': 'EmployeeDeleteFailed',
+}
+
+INVESTOR_ERROR_CODES = {
+    'AS4001': 'InvestorProfileNotFound',
+    'AS4002': 'InvalidInvestorData',
+    'AS4003': 'InvestorProfileCreationFailed',
+    'AS4004': 'InvestorProfileUpdateFailed',
+    'AS4005': 'InvestorProfileDeleteFailed',
+}
+
+DOCUMENT_ERROR_CODES = {
+    'AS5001': 'LegalDocumentNotFound',
+    'AS5002': 'InvalidDocumentData',
+    'AS5003': 'DocumentCreationFailed',
+    'AS5004': 'DocumentUpdateFailed',
+    'AS5005': 'DocumentDeleteFailed',
+}
+
+FILE_ERROR_CODES = {
+    'AS6001': 'FileUploadFailed',
+    'AS6002': 'InvalidFileType',
+    'AS6003': 'FileTooLarge',
+}
+
 @swagger_auto_schema(
     method='get',
     responses={
@@ -142,8 +190,9 @@ def api_root(request):
     method='post',
     request_body=UserRegistrationSerializer,
     responses={
-        201: openapi.Response(description='ثبت‌نام موفق', schema=UserProfileSerializer),
-        400: 'اطلاعات نامعتبر'
+        201: openapi.Response(description='Registration Successful', schema=UserProfileSerializer),
+        'AS1001': openapi.Response(description='InvalidRegistrationData'),
+        'AS1002': openapi.Response(description='EmailAlreadyExists'),
     }
 )
 @api_view(['POST'])
@@ -161,14 +210,26 @@ def register(request):
                 'refresh': str(refresh),
             }
         }, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Check for specific errors
+    if 'email' in serializer.errors:
+        return Response({
+            'error_code': 'AS1002',
+            'error_message': AUTH_ERROR_CODES['AS1002']
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    return Response({
+        'error_code': 'AS1001',
+        'error_message': AUTH_ERROR_CODES['AS1001'],
+        'details': serializer.errors
+    }, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(
     method='post',
     request_body=LoginSerializer,
     responses={
         200: openapi.Response(
-            description='ورود موفق',
+            description='Login Successful',
             schema=openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
@@ -193,8 +254,8 @@ def register(request):
                 }
             )
         ),
-        400: 'اطلاعات نامعتبر',
-        401: 'ایمیل یا رمز عبور اشتباه'
+        'AS1001': openapi.Response(description='InvalidLoginData'),
+        'AS1003': openapi.Response(description='InvalidLoginCredentials'),
     }
 )
 @api_view(['POST'])
@@ -216,20 +277,28 @@ def login(request):
                 }
             })
         else:
-            return Response({'error': 'ایمیل یا رمز عبور اشتباه است'}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'error_code': 'AS1003',
+                'error_message': AUTH_ERROR_CODES['AS1003']
+            }, status=status.HTTP_401_UNAUTHORIZED)
+    
+    return Response({
+        'error_code': 'AS1001',
+        'error_message': AUTH_ERROR_CODES['AS1001'],
+        'details': serializer.errors
+    }, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(
     method='post',
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'refresh': openapi.Schema(type=openapi.TYPE_STRING, description='توکن تازه‌سازی'),
+            'refresh': openapi.Schema(type=openapi.TYPE_STRING, description='Refresh Token'),
         }
     ),
     responses={
         200: openapi.Response(
-            description='خروج موفق',
+            description='Logout Successful',
             schema=openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
@@ -237,8 +306,8 @@ def login(request):
                 }
             )
         ),
-        400: 'خطا در خروج',
-        401: 'احراز هویت نشده'
+        'AS1005': openapi.Response(description='AuthenticationRequired'),
+        'AS1006': openapi.Response(description='InvalidLogoutToken'),
     }
 )
 @api_view(['POST'])
@@ -251,13 +320,16 @@ def logout(request):
             token.blacklist()
         return Response({'message': 'خروج موفقیت‌آمیز'})
     except Exception as e:
-        return Response({'error': 'خطا در خروج'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            'error_code': 'AS1006',
+            'error_message': AUTH_ERROR_CODES['AS1006']
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(
     method='get',
     responses={
-        200: openapi.Response(description='پروفایل کاربر', schema=UserProfileSerializer),
-        401: 'احراز هویت نشده'
+        200: openapi.Response(description='User Profile', schema=UserProfileSerializer),
+        'AS1005': openapi.Response(description='AuthenticationRequired'),
     }
 )
 @api_view(['GET'])
@@ -268,27 +340,30 @@ def profile(request):
 
 class UserProfileByIdView(APIView):
     @swagger_auto_schema(
-        operation_description="دریافت پروفایل کاربر بر اساس ID",
+        operation_description="Get User Profile by ID",
         manual_parameters=[
             openapi.Parameter(
                 'id',
                 openapi.IN_PATH,
-                description='شناسه کاربر',
+                description='User ID',
                 type=openapi.TYPE_INTEGER,
                 required=True
             )
         ],
         responses={
             200: UserProfileSerializer,
-            404: 'کاربر یافت نشد',
-            401: 'احراز هویت نشده'
+            'AS1004': openapi.Response(description='UserNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def get(self, request, id):
         try:
             user = User.objects.get(id=id)
         except User.DoesNotExist:
-            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                'error_code': 'AS1004',
+                'error_message': AUTH_ERROR_CODES['AS1004']
+            }, status=status.HTTP_404_NOT_FOUND)
         serializer = UserProfileSerializer(user)
         return Response(serializer.data)
 
