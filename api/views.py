@@ -25,56 +25,12 @@ from django.conf import settings
 from rest_framework.parsers import MultiPartParser, FormParser
 import os
 from django.core.files.storage import default_storage
+from .error_codes import (
+    AUTH_ERROR_CODES, PROJECT_ERROR_CODES, EMPLOYEE_ERROR_CODES,
+    INVESTOR_ERROR_CODES, DOCUMENT_ERROR_CODES, FILE_ERROR_CODES
+)
 
 User = get_user_model()
-
-# Error Codes
-AUTH_ERROR_CODES = {
-    'AS1001': 'InvalidRegistrationData',
-    'AS1002': 'EmailAlreadyExists',
-    'AS1003': 'InvalidLoginCredentials',
-    'AS1004': 'UserNotFound',
-    'AS1005': 'AuthenticationRequired',
-    'AS1006': 'InvalidLogoutToken',
-}
-
-PROJECT_ERROR_CODES = {
-    'AS2001': 'ProjectNotFound',
-    'AS2002': 'InvalidProjectData',
-    'AS2003': 'ProjectCreationFailed',
-    'AS2004': 'ProjectUpdateFailed',
-    'AS2005': 'ProjectDeleteFailed',
-}
-
-EMPLOYEE_ERROR_CODES = {
-    'AS3001': 'EmployeeNotFound',
-    'AS3002': 'InvalidEmployeeData',
-    'AS3003': 'EmployeeCreationFailed',
-    'AS3004': 'EmployeeUpdateFailed',
-    'AS3005': 'EmployeeDeleteFailed',
-}
-
-INVESTOR_ERROR_CODES = {
-    'AS4001': 'InvestorProfileNotFound',
-    'AS4002': 'InvalidInvestorData',
-    'AS4003': 'InvestorProfileCreationFailed',
-    'AS4004': 'InvestorProfileUpdateFailed',
-    'AS4005': 'InvestorProfileDeleteFailed',
-}
-
-DOCUMENT_ERROR_CODES = {
-    'AS5001': 'LegalDocumentNotFound',
-    'AS5002': 'InvalidDocumentData',
-    'AS5003': 'DocumentCreationFailed',
-    'AS5004': 'DocumentUpdateFailed',
-    'AS5005': 'DocumentDeleteFailed',
-}
-
-FILE_ERROR_CODES = {
-    'AS6001': 'FileUploadFailed',
-    'AS6002': 'InvalidFileType',
-    'AS6003': 'FileTooLarge',
-}
 
 @swagger_auto_schema(
     method='get',
@@ -378,22 +334,22 @@ class ProjectListCreateView(generics.ListCreateAPIView):
         return ProjectSerializer
     
     @swagger_auto_schema(
-        operation_description="دریافت لیست پروژه‌ها",
+        operation_description="Get Projects List",
         responses={
             200: ProjectSerializer(many=True),
-            401: 'احراز هویت نشده'
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="ایجاد پروژه جدید",
+        operation_description="Create New Project",
         request_body=ProjectCreateSerializer,
         responses={
             201: ProjectSerializer,
-            400: 'اطلاعات نامعتبر',
-            401: 'احراز هویت نشده'
+            'AS2002': openapi.Response(description='InvalidProjectData'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def post(self, request, *args, **kwargs):
@@ -405,35 +361,35 @@ class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     
     @swagger_auto_schema(
-        operation_description="دریافت جزئیات پروژه",
+        operation_description="Get Project Details",
         responses={
             200: ProjectSerializer,
-            404: 'پروژه یافت نشد',
-            401: 'احراز هویت نشده'
+            'AS2001': openapi.Response(description='ProjectNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="به‌روزرسانی پروژه",
+        operation_description="Update Project",
         request_body=ProjectSerializer,
         responses={
             200: ProjectSerializer,
-            400: 'اطلاعات نامعتبر',
-            404: 'پروژه یافت نشد',
-            401: 'احراز هویت نشده'
+            'AS2002': openapi.Response(description='InvalidProjectData'),
+            'AS2001': openapi.Response(description='ProjectNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="حذف پروژه",
+        operation_description="Delete Project",
         responses={
-            204: 'پروژه حذف شد',
-            404: 'پروژه یافت نشد',
-            401: 'احراز هویت نشده'
+            204: 'Project Deleted Successfully',
+            'AS2001': openapi.Response(description='ProjectNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def delete(self, request, *args, **kwargs):
@@ -449,22 +405,22 @@ class EmployeeListCreateView(generics.ListCreateAPIView):
         return EmployeeSerializer
     
     @swagger_auto_schema(
-        operation_description="دریافت لیست کارمندان",
+        operation_description="Get Employees List",
         responses={
             200: EmployeeSerializer(many=True),
-            401: 'احراز هویت نشده'
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="ایجاد کارمند جدید",
+        operation_description="Create New Employee",
         request_body=EmployeeCreateSerializer,
         responses={
             201: EmployeeSerializer,
-            400: 'اطلاعات نامعتبر',
-            401: 'احراز هویت نشده'
+            'AS3002': openapi.Response(description='InvalidEmployeeData'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def post(self, request, *args, **kwargs):
@@ -476,35 +432,35 @@ class EmployeeDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     
     @swagger_auto_schema(
-        operation_description="دریافت جزئیات کارمند",
+        operation_description="Get Employee Details",
         responses={
             200: EmployeeSerializer,
-            404: 'کارمند یافت نشد',
-            401: 'احراز هویت نشده'
+            'AS3001': openapi.Response(description='EmployeeNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="به‌روزرسانی کارمند",
+        operation_description="Update Employee",
         request_body=EmployeeSerializer,
         responses={
             200: EmployeeSerializer,
-            400: 'اطلاعات نامعتبر',
-            404: 'کارمند یافت نشد',
-            401: 'احراز هویت نشده'
+            'AS3002': openapi.Response(description='InvalidEmployeeData'),
+            'AS3001': openapi.Response(description='EmployeeNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="حذف کارمند",
+        operation_description="Delete Employee",
         responses={
-            204: 'کارمند حذف شد',
-            404: 'کارمند یافت نشد',
-            401: 'احراز هویت نشده'
+            204: 'Employee Deleted Successfully',
+            'AS3001': openapi.Response(description='EmployeeNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def delete(self, request, *args, **kwargs):
@@ -578,22 +534,22 @@ class InvestorProfileListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     
     @swagger_auto_schema(
-        operation_description="دریافت لیست پروفایل‌های سرمایه‌گذار",
+        operation_description="Get Investor Profiles List",
         responses={
             200: InvestorProfileSerializer(many=True),
-            401: 'احراز هویت نشده'
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="ایجاد پروفایل سرمایه‌گذار جدید",
+        operation_description="Create New Investor Profile",
         request_body=InvestorProfileSerializer,
         responses={
             201: InvestorProfileSerializer,
-            400: 'اطلاعات نامعتبر',
-            401: 'احراز هویت نشده'
+            'AS4002': openapi.Response(description='InvalidInvestorData'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def post(self, request, *args, **kwargs):
@@ -605,35 +561,35 @@ class InvestorProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     
     @swagger_auto_schema(
-        operation_description="دریافت جزئیات پروفایل سرمایه‌گذار",
+        operation_description="Get Investor Profile Details",
         responses={
             200: InvestorProfileSerializer,
-            404: 'پروفایل یافت نشد',
-            401: 'احراز هویت نشده'
+            'AS4001': openapi.Response(description='InvestorProfileNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="به‌روزرسانی پروفایل سرمایه‌گذار",
+        operation_description="Update Investor Profile",
         request_body=InvestorProfileSerializer,
         responses={
             200: InvestorProfileSerializer,
-            400: 'اطلاعات نامعتبر',
-            404: 'پروفایل یافت نشد',
-            401: 'احراز هویت نشده'
+            'AS4002': openapi.Response(description='InvalidInvestorData'),
+            'AS4001': openapi.Response(description='InvestorProfileNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="حذف پروفایل سرمایه‌گذار",
+        operation_description="Delete Investor Profile",
         responses={
-            204: 'پروفایل حذف شد',
-            404: 'پروفایل یافت نشد',
-            401: 'احراز هویت نشده'
+            204: 'Investor Profile Deleted Successfully',
+            'AS4001': openapi.Response(description='InvestorProfileNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def delete(self, request, *args, **kwargs):
@@ -646,22 +602,22 @@ class LegalDocumentListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     
     @swagger_auto_schema(
-        operation_description="دریافت لیست مدارک قانونی",
+        operation_description="Get Legal Documents List",
         responses={
             200: LegalDocumentSerializer(many=True),
-            401: 'احراز هویت نشده'
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="ایجاد مدرک قانونی جدید",
+        operation_description="Create New Legal Document",
         request_body=LegalDocumentSerializer,
         responses={
             201: LegalDocumentSerializer,
-            400: 'اطلاعات نامعتبر',
-            401: 'احراز هویت نشده'
+            'AS5002': openapi.Response(description='InvalidDocumentData'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def post(self, request, *args, **kwargs):
@@ -673,35 +629,35 @@ class LegalDocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     
     @swagger_auto_schema(
-        operation_description="دریافت جزئیات مدرک قانونی",
+        operation_description="Get Legal Document Details",
         responses={
             200: LegalDocumentSerializer,
-            404: 'مدرک یافت نشد',
-            401: 'احراز هویت نشده'
+            'AS5001': openapi.Response(description='LegalDocumentNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="به‌روزرسانی مدرک قانونی",
+        operation_description="Update Legal Document",
         request_body=LegalDocumentSerializer,
         responses={
             200: LegalDocumentSerializer,
-            400: 'اطلاعات نامعتبر',
-            404: 'مدرک یافت نشد',
-            401: 'احراز هویت نشده'
+            'AS5002': openapi.Response(description='InvalidDocumentData'),
+            'AS5001': openapi.Response(description='LegalDocumentNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_description="حذف مدرک قانونی",
+        operation_description="Delete Legal Document",
         responses={
-            204: 'مدرک حذف شد',
-            404: 'مدرک یافت نشد',
-            401: 'احراز هویت نشده'
+            204: 'Legal Document Deleted Successfully',
+            'AS5001': openapi.Response(description='LegalDocumentNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def delete(self, request, *args, **kwargs):
@@ -712,27 +668,29 @@ class FileUploadView(APIView):
     permission_classes = [IsAuthenticated]
     
     @swagger_auto_schema(
-        operation_description='آپلود فایل (عکس، ویدیو، داکیومنت و ...)',
+        operation_description='Upload File (Image, Video, Document, etc.)',
         manual_parameters=[
             openapi.Parameter(
                 'file',
                 openapi.IN_FORM,
-                description='فایل برای آپلود',
+                description='File to upload',
                 type=openapi.TYPE_FILE,
                 required=True
             )
         ],
         responses={
             200: openapi.Response(
-                description='آدرس فایل آپلود شده',
+                description='File Uploaded Successfully',
                 schema=openapi.Schema(
                     type=openapi.TYPE_OBJECT,
                     properties={
-                        'url': openapi.Schema(type=openapi.TYPE_STRING, description='آدرس فایل')
+                        'url': openapi.Schema(type=openapi.TYPE_STRING, description='File URL')
                     }
                 )
             ),
-            400: 'فایل نامعتبر'
+            'AS6001': openapi.Response(description='FileUploadFailed'),
+            'AS6002': openapi.Response(description='InvalidFileType'),
+            'AS6003': openapi.Response(description='FileTooLarge'),
         }
     )
     def post(self, request):
@@ -759,27 +717,28 @@ class ProjectEmployeeView(APIView):
     permission_classes = [IsAuthenticated]
     
     @swagger_auto_schema(
-        operation_description="دریافت کارمندان یک پروژه خاص",
+        operation_description="Get Employee of Specific Project",
         manual_parameters=[
             openapi.Parameter(
                 'project_id',
                 openapi.IN_PATH,
-                description='شناسه پروژه',
+                description='Project ID',
                 type=openapi.TYPE_INTEGER,
                 required=True
             ),
             openapi.Parameter(
                 'employee_id',
                 openapi.IN_PATH,
-                description='شناسه کارمند',
+                description='Employee ID',
                 type=openapi.TYPE_INTEGER,
                 required=True
             )
         ],
         responses={
             200: EmployeeSerializer,
-            404: 'پروژه یا کارمند یافت نشد',
-            401: 'احراز هویت نشده'
+            'AS2001': openapi.Response(description='ProjectNotFound'),
+            'AS3001': openapi.Response(description='EmployeeNotFound'),
+            'AS1005': openapi.Response(description='AuthenticationRequired'),
         }
     )
     def get(self, request, project_id, employee_id):
