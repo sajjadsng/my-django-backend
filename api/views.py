@@ -266,9 +266,26 @@ def profile(request):
     return Response(serializer.data)
 
 class UserProfileByIdView(APIView):
-    def get(self, request, user_id):
+    @swagger_auto_schema(
+        operation_description="دریافت پروفایل کاربر بر اساس ID",
+        manual_parameters=[
+            openapi.Parameter(
+                'id',
+                openapi.IN_PATH,
+                description='شناسه کاربر',
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ],
+        responses={
+            200: UserProfileSerializer,
+            404: 'کاربر یافت نشد',
+            401: 'احراز هویت نشده'
+        }
+    )
+    def get(self, request, id):
         try:
-            user = User.objects.get(id=user_id)
+            user = User.objects.get(id=id)
         except User.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
         serializer = UserProfileSerializer(user)

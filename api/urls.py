@@ -10,23 +10,23 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('profile/', views.profile, name='profile'),
-    path('users/<int:user_id>/', views.UserProfileByIdView.as_view(), name='user-profile-by-id'),
+    path('users/<int:id>/', views.UserProfileByIdView.as_view(), name='user-profile-by-id'),
     
     # InvestorProfile Management URLs
     path('investor-profiles/', views.InvestorProfileListCreateView.as_view(), name='investor-profile-list-create'),
-    path('investor-profiles/<int:pk>/', views.InvestorProfileDetailView.as_view(), name='investor-profile-detail'),
+    path('investor-profiles/<int:id>/', views.InvestorProfileDetailView.as_view(), name='investor-profile-detail'),
     
     # LegalDocument Management URLs
     path('legal-documents/', views.LegalDocumentListCreateView.as_view(), name='legal-document-list-create'),
-    path('legal-documents/<int:pk>/', views.LegalDocumentDetailView.as_view(), name='legal-document-detail'),
+    path('legal-documents/<int:id>/', views.LegalDocumentDetailView.as_view(), name='legal-document-detail'),
     
     # Project Management URLs
     path('projects/', views.ProjectListCreateView.as_view(), name='project-list-create'),
-    path('projects/<int:pk>/', views.ProjectDetailView.as_view(), name='project-detail'),
+    path('projects/<int:id>/', views.ProjectDetailView.as_view(), name='project-detail'),
     
     # Employee Management URLs
     path('employees/', views.EmployeeListCreateView.as_view(), name='employee-list-create'),
-    path('employees/<int:pk>/', views.EmployeeDetailView.as_view(), name='employee-detail'),
+    path('employees/<int:id>/', views.EmployeeDetailView.as_view(), name='employee-detail'),
     
     # Choice Fields URLs
     path('choices/project-status/', views.project_status_choices, name='project-status-choices'),
