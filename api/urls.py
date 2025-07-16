@@ -28,6 +28,9 @@ urlpatterns = [
     path('employees/', views.EmployeeListCreateView.as_view(), name='employee-list-create'),
     path('employees/<int:id>/', views.EmployeeDetailView.as_view(), name='employee-detail'),
     
+    # Project Employee URL (example of two IDs with unique names)
+    path('projects/<int:project_id>/employees/<int:employee_id>/', views.ProjectEmployeeView.as_view(), name='project-employee-detail'),
+    
     # Choice Fields URLs
     path('choices/project-status/', views.project_status_choices, name='project-status-choices'),
     path('choices/employment-type/', views.employment_type_choices, name='employment-type-choices'),

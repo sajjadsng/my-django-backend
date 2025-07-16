@@ -109,6 +109,7 @@ def api_root(request):
             'list': '/api/projects/',
             'create': '/api/projects/',
             'detail': '/api/projects/{id}/',
+            'project_employee': '/api/projects/{project_id}/employees/{employee_id}/',
         },
         'employees': {
             'list': '/api/employees/',
@@ -678,3 +679,40 @@ def upload_file(request):
         file_url = default_storage.url(file_name)
         return Response({'url': file_url})
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+
+class ProjectEmployeeView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @swagger_auto_schema(
+        operation_description="دریافت کارمندان یک پروژه خاص",
+        manual_parameters=[
+            openapi.Parameter(
+                'project_id',
+                openapi.IN_PATH,
+                description='شناسه پروژه',
+                type=openapi.TYPE_INTEGER,
+                required=True
+            ),
+            openapi.Parameter(
+                'employee_id',
+                openapi.IN_PATH,
+                description='شناسه کارمند',
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ],
+        responses={
+            200: EmployeeSerializer,
+            404: 'پروژه یا کارمند یافت نشد',
+            401: 'احراز هویت نشده'
+        }
+    )
+    def get(self, request, project_id, employee_id):
+        try:
+            project = Project.objects.get(id=project_id)
+            employee = Employee.objects.get(id=employee_id, project=project)
+        except (Project.DoesNotExist, Employee.DoesNotExist):
+            return Response({"detail": "Project or Employee not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = EmployeeSerializer(employee)
+        return Response(serializer.data) 
