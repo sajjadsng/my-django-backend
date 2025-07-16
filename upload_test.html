@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload Test</title>
+</head>
+<body>
+    <h2>آپلود فایل تست</h2>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" required>
+        <button type="submit">آپلود</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('لطفاً فایلی انتخاب کنید');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/upload/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTk4MzU1LCJpYXQiOjE3NTI1OTQ3NTUsImp0aSI6IjU4YTYyN2JjZTgwZjQzODZiMGY1NDVjMGVlZDZlMzhmIiwidXNlcl9pZCI6Mn0.82EQ-qkhJhukEEaSKO2smlWbNHRv1giyjzu9OM8Cyeo'
+                    },
+                    body: formData
+                });
+                
+                const result = await response.json();
+                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            } catch (error) {
+                document.getElementById('result').innerHTML = 'خطا: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html> 
