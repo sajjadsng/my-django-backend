@@ -1,21 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-class CustomUser(AbstractUser):
-    email = models.EmailField(unique=True)
-    mobile = models.CharField(max_length=15, blank=True, null=True)
-    username = models.CharField(max_length=150, blank=True, null=True)
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
-    
-    def __str__(self):
-        return self.email
-    
-    def save(self, *args, **kwargs):
-        if not self.username:
-            self.username = self.email
-        super().save(*args, **kwargs) 
-
 # Enums
 class ProjectStatus(models.IntegerChoices):
     ACTIVE = 1, 'فعال'
@@ -34,8 +19,24 @@ class Gender(models.TextChoices):
 
 class Roles(models.TextChoices):
     ADMIN = 'admin', 'مدیر'
-    MANAGER = 'manager', 'سرپرست'
     EMPLOYEE = 'employee', 'کارمند'
+
+class CustomUser(AbstractUser):
+    email = models.EmailField(unique=True)
+    fullName = models.CharField(max_length=255, verbose_name='نام کامل', default='No Name')
+    role = models.CharField(max_length=20, choices=Roles.choices, default=Roles.EMPLOYEE, verbose_name='نقش')
+    companyName = models.CharField(max_length=255, blank=True, null=True, verbose_name='نام شرکت')
+    username = models.CharField(max_length=150, blank=True, null=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['fullName']
+    
+    def __str__(self):
+        return self.email
+    
+    def save(self, *args, **kwargs):
+        if not self.username:
+            self.username = self.email
+        super().save(*args, **kwargs)
 
 # Models
 class InvestorProfile(models.Model):

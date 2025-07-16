@@ -13,7 +13,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CustomUser
-        fields = ['email', 'password', 'first_name', 'last_name', 'mobile']
+        fields = ['email', 'fullName', 'password', 'role', 'companyName']
     
     def create(self, validated_data):
         # Set username to email if not provided
@@ -25,7 +25,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'email', 'first_name', 'last_name', 'mobile']
+        fields = ['id', 'email', 'fullName', 'role', 'companyName']
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

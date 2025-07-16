@@ -10,7 +10,7 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('profile/', views.profile, name='profile'),
-    path('users/<int:id>/', views.UserProfileByIdView.as_view(), name='user-profile-by-id'),
+    path('profile/<int:id>/', views.UserProfileByIdView.as_view(), name='user-profile-by-id'),
     
     # InvestorProfile Management URLs
     path('investor-profiles/', views.InvestorProfileListCreateView.as_view(), name='investor-profile-list-create'),
